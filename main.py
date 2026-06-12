@@ -61,6 +61,9 @@ class FileReader:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <file_path>", file=sys.stderr)
+        sys.exit(1)
     reader = FileReader(sys.argv[1])
     for log in reader.read_lines():
         print(f"{log.id} : {log.process()}")
