@@ -1,7 +1,11 @@
 """Rule functions for processing log lines."""
 
 import json
+import logging
 from abc import ABC, abstractmethod
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.FileHandler("json_rule.log"))
 
 
 class Rule(ABC):
@@ -77,7 +81,11 @@ class JsonRule(Rule):
     def _apply(self, id: int, content: str) -> str | None:
         """Parse JSON, add 'even' key, and re-serialize if content starts with '{'."""
         if content.startswith("{"):
-            data = json.loads(content)
-            data["even"] = id % 2 == 0
-            return json.dumps(data, ensure_ascii=False)
+            try:
+                data = json.loads(content)
+                data["even"] = id % 2 == 0
+                return json.dumps(data, ensure_ascii=False)
+            except json.JSONDecodeError:
+                logger.warning(f"invalid json for line {id}, rule cannot be applied.")
+                return None
         return None
